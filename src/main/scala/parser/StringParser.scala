@@ -5,33 +5,13 @@ import adts._
 import scala.util.parsing.combinator.RegexParsers
 
 trait StringParser extends RegexParsers {
-  val leftBrace: Parser[Tokens] = "\\{".r ^^ { _ ⇒
-    LeftBrace
-  }
-
-  val rightBrace: Parser[Tokens] = "\\}".r ^^ { _ ⇒
-    LeftBrace
-  }
-
-  val leftSquare: Parser[Tokens] = "\\[".r ^^ { _ ⇒
-    LeftSquare
-  }
-
-  val rightSquare: Parser[Tokens] = "\\]".r ^^ { _ ⇒
-    RightSquare
-  }
-
-  val colon: Parser[Tokens] = ":".r ^^ { _ ⇒
-    Colon
-  }
-
-  val comma: Parser[Tokens] = ",".r ^^ { _ ⇒
-    Comma
-  }
-
-  val semiColon: Parser[Tokens] = ";".r ^^ { _ ⇒
-    SemiColon
-  }
+  val leftBrace: Parser[Tokens]   = "{" ^^^ LeftBrace
+  val rightBrace: Parser[Tokens]  = "}" ^^^ RightBrace
+  val leftSquare: Parser[Tokens]  = "[" ^^^ LeftSquare
+  val rightSquare: Parser[Tokens] = "]" ^^^ RightSquare
+  val colon: Parser[Tokens]       = ":" ^^^ Colon
+  val comma: Parser[Tokens]       = "," ^^^ Comma
+  val semiColon: Parser[Tokens]   = ";" ^^^ SemiColon
 
   val singleQuotedString: Parser[String] = "'.*?'".r ^^ {
     _.replaceAll("'", "")
