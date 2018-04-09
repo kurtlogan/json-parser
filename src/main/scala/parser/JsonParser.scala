@@ -5,7 +5,9 @@ import adts._
 object JsonParser extends StringParser {
 
   lazy val obj
-    : Parser[JsonObject] = leftBrace ~> repsep(property, comma) <~ rightBrace <~ (semiColon ?) ^^ { JsonObject(_: _*) }
+    : Parser[JsonObject] = leftBrace ~> repsep(property, comma) <~ rightBrace <~ (semiColon ?) ^^ {
+    JsonObject(_: _*)
+  }
 
   lazy val property: Parser[Json] = name ~ value ^^ {
     case n ~ v ⇒ JsonProperty(n, v)
