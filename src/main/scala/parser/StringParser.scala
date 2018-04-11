@@ -17,12 +17,14 @@ trait StringParser extends RegexParsers {
   val numberInt: Parser[Int]     = "-?\\d+".r ^^ { _.toInt }
   val numberFloat: Parser[Float] = "-?\\d+\\.\\d+(E-?\\d+)?".r ^^ { _.toFloat }
 
-  val singleQuotedString: Parser[String] = "'.*?'".r ^^ {
-    _.replaceAll("'", "")
+  val singleQuotedString: Parser[String] = "'.*?(?<!\\\\)'".r ^^ {
+    _.replaceAll("(?<!\\\\)'", "")
+      .replaceAll("\\\\'", "'")
   }
 
-  val doubleQuotedString: Parser[String] = """".*?"""".r ^^ {
-    _.replaceAll(""""""", "")
+  val doubleQuotedString: Parser[String] = """".*?(?<!\\)"""".r ^^ {
+    _.replaceAll("""(?<!\\)"""", "")
+      .replaceAll("""\\"""", """"""")
   }
 
   val enclosedString: Parser[String] = singleQuotedString | doubleQuotedString

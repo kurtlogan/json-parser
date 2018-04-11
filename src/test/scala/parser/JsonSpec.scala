@@ -70,6 +70,18 @@ class JsonSpec extends UnitSpec {
         }
       }
 
+      "{'hello': 'wor\\'ld'} is passed" in {
+        parse("{'hello': 'wor\\'ld'}").merge shouldBe JsonObject(
+          JsonProperty("hello", JsString("wor'ld"))
+        )
+      }
+
+      """{"hello": "wor\"ld"} is passed""" in {
+        parse("""{"hello": "wor\"ld"}""").merge shouldBe JsonObject(
+          JsonProperty("hello", JsString("""wor"ld"""))
+        )
+      }
+
       // TODO: need to consider escaped " and ' characters in strings
 
       "{'hello': 'world', 'foo': 'bar'}" in {
