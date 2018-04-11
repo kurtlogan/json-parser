@@ -5,7 +5,7 @@ import adts._
 object JsonParser extends StringParser {
 
   lazy val obj
-    : Parser[JsonObject] = leftBrace ~> repsep(property, comma) <~ rightBrace <~ (semiColon ?) ^^ {
+    : Parser[JsonObject] = leftBrace ~> repsep(property, comma) <~ (comma ?) <~ rightBrace <~ (semiColon ?) ^^ {
     JsonObject(_: _*)
   }
 
@@ -16,27 +16,30 @@ object JsonParser extends StringParser {
   lazy val name: Parser[String] = enclosedString <~ colon ^^ id
 
   lazy val value
-    : JsonParser.Parser[JsValue] = (enclosedString | boolean | numberFloat | numberInt | array | obj) ^^ {
+    : JsonParser.Parser[JsValue] = (enclosedString | boolean | numberFloat | numberInt | nullValue | array | obj) ^^ {
     case s: String  ⇒ JsString(s)
     case b: Boolean ⇒ JsBoolean(b)
     case f: Float   ⇒ JsNumber(f)
     case i: Int     ⇒ JsNumber(i)
+    case JsNull     ⇒ JsNull
 
-    // Type is unchecked and eliminated by erasure so all lists will match - need to fix
+    // TODO type is unchecked and eliminated by erasure so all lists will match - need to fix
     case a: List[JsValue] ⇒ JsArray(a: _*)
     case o: JsonObject    ⇒ o
   }
 
   lazy val array
-    : Parser[List[JsValue]] = leftSquare ~> repsep(value, comma) <~ rightSquare ^^ id
+    : Parser[List[JsValue]] = leftSquare ~> repsep(value, comma) <~ (comma ?) <~ rightSquare ^^ id
 
   lazy val json: Parser[JsonObject] = phrase(obj)
+
+  lazy val nullValue: Parser[JsValue] = "null" ^^^ JsNull
 
   def parse(input: String): Either[String, JsonObject] =
     super.parse(json, input) match {
       case Success(result, _) ⇒ Right(result)
-      case NoSuccess(_, _)    ⇒ Left("failed to parse json")
+      case NoSuccess(_, _)    ⇒ Left(s"failed to parse json")
     }
 
-  private def id[A](x: A) = x
+  private def id[A](x: A): A = x
 }

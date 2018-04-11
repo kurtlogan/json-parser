@@ -13,6 +13,10 @@ trait StringParser extends RegexParsers {
   val comma: Parser[Tokens]       = "," ^^^ Comma
   val semiColon: Parser[Tokens]   = ";" ^^^ SemiColon
 
+  val boolean: Parser[Boolean]   = "true|false".r ^^ { _.toBoolean }
+  val numberInt: Parser[Int]     = "-?\\d+".r ^^ { _.toInt }
+  val numberFloat: Parser[Float] = "-?\\d+\\.\\d+(E-?\\d+)?".r ^^ { _.toFloat }
+
   val singleQuotedString: Parser[String] = "'.*?'".r ^^ {
     _.replaceAll("'", "")
   }
@@ -20,12 +24,6 @@ trait StringParser extends RegexParsers {
   val doubleQuotedString: Parser[String] = """".*?"""".r ^^ {
     _.replaceAll(""""""", "")
   }
-
-  val boolean: Parser[Boolean] = "true|false".r ^^ { _.toBoolean }
-
-  val numberInt: Parser[Int] = "-?\\d+".r ^^ { _.toInt }
-
-  val numberFloat: Parser[Float] = "-?\\d+\\.\\d+(E-?\\d+)?".r ^^ { _.toFloat }
 
   val enclosedString: Parser[String] = singleQuotedString | doubleQuotedString
 }

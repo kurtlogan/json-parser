@@ -183,12 +183,32 @@ class JsonSpec extends UnitSpec {
           )
         }
       }
+
+      "{'arr': ['hello',]} is passed" in {
+        parse("{'arr': ['hello',]}").merge shouldBe JsonObject(
+          JsonProperty("arr", JsArray(JsString("hello")))
+        )
+      }
     }
 
     "return an object with an object" when {
       "{'obj': {}}" in {
         parse("{'obj': {}}").merge shouldBe JsonObject(
           JsonProperty("obj", JsonObject())
+        )
+      }
+
+      "{'obj': {},} is passed" in {
+        parse("{'obj': {},}").merge shouldBe JsonObject(
+          JsonProperty("obj", JsonObject())
+        )
+      }
+    }
+
+    "return null property" when {
+      "{'value': null} is passed" in {
+        parse("{'value': null}").merge shouldBe JsonObject(
+          JsonProperty("value", JsNull)
         )
       }
     }
@@ -201,16 +221,18 @@ class JsonSpec extends UnitSpec {
           |   'with':
           |           'value',
           |   "amount": 1000,
-          |   "asFloat": 1000.99
+          |   "asFloat": 1000.99,
           | },
           | 'list-of-values': [
           |   {},
           |   "foobar",
           |   88008,
-          |   1234.1234
+          |   1234.1234,
+          |   null,
           | ]
           |}
-          |""".stripMargin
+          |
+          |;""".stripMargin
 
       parse(input).merge shouldBe JsonObject(
         JsonProperty(
@@ -227,7 +249,8 @@ class JsonSpec extends UnitSpec {
             JsonObject(),
             JsString("foobar"),
             JsNumber(88008),
-            JsNumber(1234.1234f)
+            JsNumber(1234.1234f),
+            JsNull
           )
         )
       )
