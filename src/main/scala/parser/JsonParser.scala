@@ -16,12 +16,12 @@ object JsonParser extends StringParser {
   lazy val name: Parser[String] = enclosedString <~ colon ^^ id
 
   lazy val value
-    : JsonParser.Parser[JsValue] = (enclosedString | boolean | numberFloat | numberInt | nullValue | array | obj) ^^ {
+    : JsonParser.Parser[JsValue] = (enclosedString | boolean | numberFloat | numberInt | nullable | array | obj) ^^ {
     case s: String  ⇒ JsString(s)
     case b: Boolean ⇒ JsBoolean(b)
     case f: Float   ⇒ JsNumber(f)
     case i: Int     ⇒ JsNumber(i)
-    case JsNull     ⇒ JsNull
+    case Null       ⇒ JsNull
 
     // TODO type is unchecked and eliminated by erasure so all lists will match - need to fix
     case a: List[JsValue] ⇒ JsArray(a: _*)
@@ -32,8 +32,6 @@ object JsonParser extends StringParser {
     : Parser[List[JsValue]] = leftSquare ~> repsep(value, comma) <~ (comma ?) <~ rightSquare ^^ id
 
   lazy val json: Parser[JsonObject] = phrase(obj)
-
-  lazy val nullValue: Parser[JsValue] = "null" ^^^ JsNull
 
   def parse(input: String): Either[String, JsonObject] =
     super.parse(json, input) match {

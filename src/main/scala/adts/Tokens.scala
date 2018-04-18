@@ -8,3 +8,4 @@ final case object RightSquare extends Tokens
 final case object Colon       extends Tokens
 final case object Comma       extends Tokens
 final case object SemiColon   extends Tokens
+final case object Null        extends Tokens

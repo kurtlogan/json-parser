@@ -12,6 +12,7 @@ trait StringParser extends RegexParsers {
   val colon: Parser[Tokens]       = ":" ^^^ Colon
   val comma: Parser[Tokens]       = "," ^^^ Comma
   val semiColon: Parser[Tokens]   = ";" ^^^ SemiColon
+  val nullable: Parser[Tokens]    = "null".r ^^^ Null
 
   val boolean: Parser[Boolean]   = "true|false".r ^^ { _.toBoolean }
   val numberInt: Parser[Int]     = "-?\\d+".r ^^ { _.toInt }
