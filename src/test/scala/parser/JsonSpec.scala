@@ -82,8 +82,6 @@ class JsonSpec extends UnitSpec {
         )
       }
 
-      // TODO: need to consider escaped " and ' characters in strings
-
       "{'hello': 'world', 'foo': 'bar'}" in {
         forAll(nameValuesGen) { nameValues ⇒
           val properties = nameValues

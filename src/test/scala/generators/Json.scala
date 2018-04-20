@@ -8,29 +8,46 @@ object Json {
   private def numGen[T](implicit n: Numeric[T], c: Choose[T]) =
     Gen.oneOf(Gen.posNum[T], Gen.negNum[T])
 
-  lazy val arrayGen = Gen.listOf(valueGen).map(xs ⇒ JsArray(xs: _*))
-  val booleanGen    = Gen.oneOf(true, false).map(JsBoolean)
-  val floatGen      = numGen[Float].map(JsNumber[Float])
-  val intGen        = numGen[Int].map(JsNumber[Int])
-  val stringGen     = Gen.alphaNumStr.map(JsString)
+  def arrayGen(maxDepth: Int): Gen[JsArray] =
+    Gen.listOf(maxDepthValueGen(maxDepth)).map(xs ⇒ JsArray(xs: _*))
 
-  lazy val valueGen: Gen[JsValue] = Gen.oneOf(
-    arrayGen,
-    booleanGen,
-    floatGen,
-    intGen,
-    objectGen,
-    stringGen,
-    Gen.const(JsNull)
-  )
+  val booleanGen: Gen[JsBoolean]     = Gen.oneOf(true, false).map(JsBoolean)
+  val floatGen: Gen[JsNumber[Float]] = numGen[Float].map(JsNumber[Float])
+  val intGen: Gen[JsNumber[Int]]     = numGen[Int].map(JsNumber[Int])
+  val stringGen: Gen[JsString]       = Gen.alphaNumStr.map(JsString)
 
-  val propertyGen: Gen[JsonProperty] = for {
-    name  ← Gen.alphaNumStr
-    value ← valueGen
-  } yield {
-    JsonProperty(name, value)
+  def maxDepthValueGen(maxDepth: Int): Gen[JsValue] = maxDepth match {
+    case i if i <= 0 ⇒
+      Gen.oneOf(
+        booleanGen,
+        floatGen,
+        intGen,
+        stringGen,
+        Gen.const(JsNull)
+      )
+
+    case i ⇒
+      Gen.oneOf(
+        arrayGen(i - 1),
+        objectGen(i - 1),
+        booleanGen,
+        floatGen,
+        intGen,
+        stringGen,
+        Gen.const(JsNull)
+      )
   }
 
-  val objectGen: Gen[JsonObject] =
-    Gen.listOf(propertyGen).map(xs ⇒ JsonObject(xs: _*))
+  def propertyGen(maxValueDepth: Int): Gen[JsonProperty] =
+    for {
+      name  ← Gen.alphaNumStr
+      value ← maxDepthValueGen(maxValueDepth)
+    } yield {
+      JsonProperty(name, value)
+    }
+
+  def objectGen(maxDepth: Int): Gen[JsonObject] =
+    Gen.listOf(propertyGen(maxDepth)).map(xs ⇒ JsonObject(xs: _*))
+
+  val objectGen: Gen[JsonObject] = objectGen(3)
 }

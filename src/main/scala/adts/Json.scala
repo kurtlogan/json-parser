@@ -1,7 +1,7 @@
 package adts
 
 sealed trait Json
-final case class JsonObject(tokens: Json*)                  extends Json with JsValue
+final case class JsonObject(tokens: JsonProperty*)          extends Json with JsValue
 final case class JsonProperty(name: String, value: JsValue) extends Json
 
 sealed trait JsValue
